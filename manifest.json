@@ -1,0 +1,18 @@
+{
+    "lang": "it",
+    "name": "meteo.FVG",
+    "short_name": "meteo.FVG",
+    "description": "Previsioni meteorologiche per il Friuli-Venezia Giulia",
+    "scope": "./",
+    "icons": [
+        {
+            "src": "img/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
+    "display": "standalone",
+    "start_url": "./index.html",
+    "theme_color": "#F28A00",
+    "background_color": "#F28A00"
+}

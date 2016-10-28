@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>meteo.FVG</title>
+
+    <link rel="manifest" href="manifest.json">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="meteo.FVG">
+    <link rel="apple-touch-icon" href="img/icon-144x144.png">
+    <meta name="msapplication-TileImage" content="/meteo.fvg/img/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#2F3BA2">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="import" href="components/station.comp.html">
+</head>
+<body>
+    <header>
+        <div hidden>
+            <button type="button" class="back">
+                <svg class="icon icon-action">
+                    <use xlink:href="img/ui-sprite.svg#icon-back"></use>
+                </svg>
+            </button>
+        </div>
+        <h1 class="title">meteo.FVG</h1>
+        <div>
+            <button type="button" hidden>
+                <svg class="icon icon-action">
+                    <use xlink:href="img/ui-sprite.svg#icon-refresh"></use>
+                </svg>
+            </button>
+            <button type="button" class="pageAction">
+                <svg class="icon icon-action">
+                    <use xlink:href="img/ui-sprite.svg#icon-search"></use>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section id="nearest">
+        </section>
+
+        <section id="favorites">
+            <p class="message" hidden>
+                Nessuna stazione preferita.<br/>
+                Tocca su <svg class="icon small"><use xlink:href="img/ui-sprite.svg#icon-search"></use></svg>, trova una stazione e tocca su <svg class="icon small"><use xlink:href="img/ui-sprite.svg#icon-favorite_border"></use></svg> per aggiungerla alle preferite.
+            </p>
+        </section>
+
+        <section id="textual" hidden>
+            <!-- textual forecast -->
+            <h1><span class="station-name">-</span></h1>
+            <h2>Situazione generale</h2>
+            <p class="situation"></p>
+            <div class="trend">
+                <div id="day1">
+                    <h2>Domani</h3>
+                    <p></p>
+                </div>
+                <div id="day2">
+                    <h2>Dopodomani</h3>
+                    <p></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="stations" hidden>
+            <!-- stations list -->
+            <input type="search" autofocus>
+            <ol></ol>
+            <template>
+                <li>
+                    <div class="distance"></div>
+                    <div class="name"></div>
+                    <div>
+                        <button type="button" class="favorite" data-is-favorite="false">
+                            <svg class="icon icon-favorite_border">
+                                <use xlink:href="img/ui-sprite.svg#icon-favorite_border"></use>
+                            </svg>
+                        </button>
+                    </div>
+                </li>
+            </template>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<template>
+    <style>
+        h1, h2, p {
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+        }
+        h1 {
+            margin-left: 6px;
+        }
+        h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        small {
+            color: rgba(0,0,0,0.6);
+        }
+        button {
+            margin: 0;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            border: none;
+            outline: none;
+            background-color: transparent;
+        }
+        header {
+            display: flex;
+        }
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            stroke-width: 0;
+            stroke: #b9b9b9;
+            fill: #b9b9b9;
+        }
+        .visual {
+            position: relative;
+            margin: 0;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.3);
+            opacity: 1;
+            transition: opacity .3s ease-out;
+        }
+        .actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .realtime {
+            padding-bottom: 10px;
+        }
+        .trend {
+            display: none;
+            justify-content: center;
+            align-content: space-around;
+            padding-top: 10px;
+            border-top: 1px solid #e9e9e9;
+        }
+        #day1, #day2 {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .details {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .temperature {
+            font-size: 24px;
+        }
+        .plusDegrees {
+            color: red;
+        }
+        .minusDegrees {
+            color: blue;
+        }
+        .infographic {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .symbol {
+            width: 60px;
+            height: 60px;
+        }
+        .precipitation {
+            color: rgba(0,0,0,0.6);
+        }
+        .wind {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .wind-direction {
+            margin: 0;
+            padding: 0;
+            height: 60px;
+            font-size: 40px;
+        }
+        .wind-speed {
+            color: rgba(0,0,0,0.6);
+        }
+    </style>
+    <section class="visual">
+        <div class="realtime">
+            <header>
+                <button type="button" class="station-type">
+                    <svg class="icon">
+                        <use xlink:href="img/ui-sprite.svg#icon-favorite"></use>
+                    </svg>
+                </button>
+                <h1 class="station-name">-</h1>
+            </header>
+            <small class="last-observation">Aggiornato il <time>n.d.</time></small>
+            <div class="details">
+                <p class="temperature" title="Temperatura a 2 m">n.d.</p>
+                <p class="infographic">
+                    <span class="symbol"></span>
+                    <span class="precipitation">n.d.</span>
+                </p>
+                <p class="wind" title="Direzione e velocità media vento a 10 m">
+                    <span class="wind-direction"> </span> <span class="wind-speed">n.d.</span>
+                </p>
+            </div>
+        </div>
+        <div class="trend">
+            <div id="day1">
+                <h2>Domani</h2>
+                <small>Attendibilità: <span>n.d.</span></small>
+                <div class="details">
+                    <p class="infographic">
+                        <span class="symbol"></span>
+                    </p>
+                    <p class="wind" title="Direzione e velocità media vento a 10 m">
+                        <span class="wind-direction"> </span>
+                    </p>
+                </div>
+            </div>
+            <div id="day2">
+                <h2>Dopodomani</h2>
+                <small>Attendibilità: <span>n.d.</span></small>
+                <div class="details">
+                    <p class="infographic">
+                        <span class="symbol"></span>
+                    </p>
+                    <p class="wind" title="Direzione e velocità media vento a 10 m">
+                        <span class="wind-direction"> </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button type="button" class="description" hidden>
+                <svg class="icon icon-description">
+                    <use xlink:href="img/ui-sprite.svg#icon-description"></use>
+                </svg>
+            </button>
+        </div>
+    </section>
+</template>
+
+<script>
+(function () {
+    'use strict';
+
+    const contentTemplate = document.currentScript.ownerDocument.querySelector('template');
+
+    // web component boilerplate
+    class StationWidget extends HTMLElement {
+        createdCallback() {
+            this.createShadowRoot().appendChild(document.importNode(contentTemplate.content, true));
+
+            this.$visual = this.shadowRoot.querySelector('.visual');
+            this.$removeFavoriteTimeout = undefined;
+            this.$toggleExpandStation = (event) => {
+console.debug('click on visual', this);
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (this.attributes.getNamedItem('expanded')) {
+                    this.removeAttribute('expanded');
+                }
+                else {
+                    this.setAttribute('expanded', true);
+                }
+            };
+
+            // event handlers
+            // click on the favorite icon, triggers the favorite removal (after a short timeout)
+            this.$visual.querySelector('.station-type').addEventListener('click', event => {
+console.debug('click on station type button');
+                event.preventDefault();
+                event.stopPropagation();
+
+                var useEl = event.currentTarget.querySelector('use');
+
+                if (useEl.getAttribute('xlink:href') === 'img/ui-sprite.svg#icon-favorite') {
+                    useEl.setAttribute('xlink:href', 'img/ui-sprite.svg#icon-favorite_border');
+
+                    this.$removeFavoriteTimeout = setTimeout(() => { this.$visual.style.opacity = 0; }, 1000); 
+                }
+                else if (useEl.getAttribute('xlink:href') === 'img/ui-sprite.svg#icon-favorite_border') {
+console.debug('click on station marked for removal');
+                    if (this.$removeFavoriteTimeout) {
+                        clearTimeout(this.$removeFavoriteTimeout);
+                    }
+
+                    useEl.setAttribute('xlink:href', 'img/ui-sprite.svg#icon-favorite');
+                }
+            });
+
+            // on (opacity) transition end, trigger the removeFavorite on the main app
+            this.$visual.addEventListener('transitionend', event => {
+                const removeFavoriteEvent = new CustomEvent('removeFavorite', { bubbles: true, detail: { station : `${ this.$stationId }:${ this.$zoneId }` } });
+                this.dispatchEvent(removeFavoriteEvent);
+            });
+
+            this.$visual.querySelector('button[class="description"]').addEventListener('click', event => {
+    console.debug('description button in widget clicked', event, this);
+                event.preventDefault();
+                event.stopPropagation();
+
+                // description button triggers a custom event
+                const descriptionEvent = new CustomEvent('showTextual', { bubbles: true, detail: { station: `${ this.$stationId }:${ this.$zoneId }` } });
+                event.currentTarget.dispatchEvent(descriptionEvent);
+            });
+
+            // check for existing attributes
+            const attributes = this.attributes;
+    console.debug('attributes', attributes);
+
+            if (attributes.getNamedItem('expanded')) {
+                this.$visual.querySelector('.trend').style.display = 'flex';
+            }
+        }
+
+        attachedCallback() {
+console.debug('widget attached to DOM');
+
+//            setInterval(() => { this.refresh(); }, 1000 * 60 * 5);
+        }
+
+        refresh() {
+console.debug('refresh!');
+
+//            setInterval(() => { this.refresh(); }, 1000);
+        }
+
+        updateRealtime(data) {
+            const el = this;
+
+            this.$visual.querySelector('.station-name').textContent = data.station_name;
+
+            const observationDate = new Date(data.observation_time * 1000);
+            const lastObservationEl = this.$visual.querySelector('.last-observation > time');
+            lastObservationEl.setAttribute('datetime', observationDate.toISOString());
+            lastObservationEl.textContent = observationDate.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric'}) + ' ore ' + observationDate.toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+            // temperature
+            if (data.temperature.value) {
+                const temperatureEl = this.$visual.querySelector('.temperature');
+                temperatureEl.textContent = data.temperature.value + data.temperature.um;
+
+                temperatureEl.classList.toggle('plusDegrees', data.temperature.value > 0);
+                temperatureEl.classList.toggle('minusDegrees', data.temperature.value <= 0);
+            }
+            else {
+                this.$visual.querySelector('.temperature').textContent = 'n.d.';
+            }
+
+            // symbol 
+            this.$visual.querySelector('.symbol').style.background = computeBackgroundRules(data);
+
+            // precipitation
+            if (data.precipitation.value === null) {
+                this.$visual.querySelector('.precipitation').textContent = 'n.d.';
+            }
+            else {
+                this.$visual.querySelector('.precipitation').textContent = data.precipitation.value + ' ' + data.precipitation.um;
+            }
+
+            // wind
+            var windSpeedEl = this.$visual.querySelector('.wind-speed');
+
+            if (data.wind.speed.value === null) {
+                windSpeedEl.textContent = 'n.d.';
+            }
+            else {
+                windSpeedEl.textContent = data.wind.speed.value + ' ' + data.wind.speed.um;
+            }
+
+            const windDirectionEl = this.$visual.querySelector('.wind-direction');
+
+            if (data.wind.direction.value === null) {
+                windDirectionEl.textContent = ' ';
+                //windDirectionEl.setAttribute('hidden', 'hidden');
+            }
+            else {
+                windDirectionEl.innerHTML = '&#8595;';
+                windDirectionEl.style.transform = `rotate(${ data.wind.direction.value }deg)`;
+                //windDirectionEl.removeAttribute('hidden');
+            }
+        }
+
+        updateTrend(data) {
+            for (let i = 0; i < 2; i++) {
+                const forecastData = data.forecasts[i];
+
+                const fDate = new Date(forecastData.date * 1000);
+
+                const selector = '#day' + (i + 1);
+
+                this.$visual.querySelector(selector + ' > h2').textContent = fDate.toLocaleDateString('it-IT', { weekday: 'long' });
+                this.$visual.querySelector(selector + ' > small > span').textContent = forecastData.reliability.value + forecastData.reliability.um;
+
+                // symbol
+                this.$visual.querySelector(selector + ' .symbol').style.background = computeBackgroundRules(forecastData);
+
+                // wind
+                var windDirectionEl = this.$visual.querySelector(selector + ' .wind-direction');
+
+                if (forecastData.wind.direction.value === null) {
+                    windDirectionEl.textContent = ' ';
+                }
+                else {
+                    windDirectionEl.innerHTML = '&#8595;';
+                    windDirectionEl.style.transform = 'rotate(' + forecastData.wind.direction.value + 'deg)';
+                }
+            }
+        }
+
+        fetchStationData() {
+console.debug('fetch station data!');
+            const el = this;
+
+            if (! el.$stationId) { return; }
+
+            const stationId = el.$stationId;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/meteo.fvg/json/' + stationId + '.json', true);
+            xhr.responseType = 'json';
+
+            xhr.onload = () => {
+                if (xhr.status === 200 && xhr.response) {
+                    const data = xhr.response;
+    console.debug('station data', data);
+                    this.updateRealtime(data);
+
+                    setTimeout(() => { this.fetchStationData(); }, 1000 * 60 * 5);
+                }
+            };
+
+            xhr.send();
+        }
+
+        fetchZoneData() {
+console.debug('fetch zone data!');
+            const el = this;
+
+            if (! el.$zoneId) { return; }
+
+            const zoneId = el.$zoneId;
+
+            const d = new Date();
+            const folder = d.getFullYear() + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + (d.getDate() < 10 ? '0' : '') + d.getDate();
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/meteo.fvg/json/' + folder + '/zone-' + zoneId + '.json', true);
+            xhr.responseType = 'json';
+
+            xhr.onload = () => {
+                if (xhr.status === 200 && xhr.response) {
+                    const data = xhr.response;
+    console.debug('zone data', data);
+                    this.updateTrend(data);
+
+                    this.$visual.querySelector('button[class="description"]').removeAttribute('hidden');
+                    this.$visual.addEventListener('click', this.$toggleExpandStation, false);
+                }
+                else if (xhr.status === 404) {
+                    this.$visual.querySelector('button[class="description"]').setAttribute('hidden', 'hidden');
+                    this.$visual.removeEventListener('click', this.$toggleExpandStation, false);
+                }
+
+                // Refresh data in 5 minutes
+                setTimeout(() => { this.fetchZoneData(); }, 1000 * 60 * 5);
+            };
+
+            xhr.send();
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+console.debug('attributechange', this);
+            const el = this;
+
+            switch (attrName) {
+                case 'station-id':
+                    el.$stationId = newVal;
+
+                    this.fetchStationData();
+
+                    break;
+                case 'zone-id':
+                    el.$zoneId = newVal;
+
+                    this.fetchZoneData();
+
+                    break;
+                case 'expanded':
+                    el.$visual.querySelector('.trend').style.display = (newVal === 'true') ? 'flex' : 'none';
+
+                    break;
+                case 'gps':
+                    const iconEl = el.$visual.querySelector('.station-type');
+
+                    if (newVal === 'fix') {
+                        iconEl.querySelector('use').setAttribute('xlink:href', 'img/ui-sprite.svg#icon-gps_fix');
+                    }
+                    else if (newVal === 'nofix') {
+                        iconEl.querySelector('use').setAttribute('xlink:href', 'img/ui-sprite.svg#icon-gps_nofix');
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    function computeBackgroundRules(data) {
+        const cloudiness = data.cloudiness;
+        const precipitationType = data.precipitation.type;
+        const precipitationValue = data.precipitation.value;
+        const precipitationLevel = data.precipitation.level;
+
+console.debug('precipitation: type:', precipitationType, 'mm', precipitationValue, 'level', precipitationLevel);
+
+        const backgroundRules = [];
+
+        if (cloudiness) {
+            const leftPx = '-60'; // day, 0 for night TODO calculate sunrise/sunset time based on station location :)
+
+            backgroundRules.push('url(img/symbols-sprite.png) ' + leftPx + 'px -' + (cloudiness - 1) * 60 + 'px no-repeat');
+        }
+
+        if (precipitationType && precipitationLevel) {
+            const topPx = (precipitationLevel - 1) * 60;
+
+            switch (precipitationType) {
+                // rain
+                case 1:
+                    backgroundRules.push('url(img/symbols-sprite.png) -120px -' + topPx + 'px no-repeat');
+                    break;
+                // rain + snow
+                case 2:
+                    backgroundRules.push('url(img/symbols-sprite.png) -120px -' + topPx + 'px no-repeat');
+                    backgroundRules.push('url(img/symbols-sprite.png) -180px -' + topPx + 'px no-repeat');
+                    break;
+                // snow
+                case 3:
+                    backgroundRules.push('url(img/symbols-sprite.png) -180px -' + topPx + 'px no-repeat');
+                    break;
+            }
+        }
+
+        return backgroundRules.join(',');
+    };
+
+    document.registerElement('station-widget', StationWidget);
+}());
+</script>
