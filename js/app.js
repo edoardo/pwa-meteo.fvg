@@ -145,7 +145,7 @@ console.debug('station', station);
 
     const xhr = new XMLHttpRequest();
 
-    xhr.open('GET', 'json/' + folder + '/zone-' + zoneId + '.json', true);
+    xhr.open('GET', `json/${ folder }/zone-${ zoneId }.json`, true);
     xhr.responseType = 'json';
 
     xhr.onload = () => {
@@ -161,8 +161,8 @@ console.debug('station', station);
 
                 const selector = '#day' + (i + 1);
 
-                textual.querySelector(selector + ' > h2').textContent = fDate.toLocaleDateString('it-IT', { weekday: 'long' });
-                textual.querySelector(selector + ' > p').innerHTML = forecastData.description;
+                textual.querySelector(`${ selector } > h2`).textContent = fDate.toLocaleDateString('it-IT', { weekday: 'long' });
+                textual.querySelector(`${ selector } > p`).innerHTML = forecastData.description;
             }
 
             textual.removeAttribute('hidden');           
@@ -322,7 +322,7 @@ console.debug('remove favorite', icon);
 console.debug('add favorite', icon);
                 icon.setAttribute('xlink:href', 'img/ui-sprite.svg#icon-favorite');
 
-                app.addFavorite(station.id + ':' + station.zone);
+                app.addFavorite(`${ station.id }:${ station.zone }`);
             }
 
             button.setAttribute('data-is-favorite', ! isFavorite);
@@ -381,7 +381,7 @@ console.debug('removing favorite', station);
     const [stationId, zoneId] = station.split(':');
 
     const favoriteLocationEl = document.querySelector('#favorites');
-    const stationEl = favoriteLocationEl.querySelector('station-widget[station-id="' + stationId + '"]');
+    const stationEl = favoriteLocationEl.querySelector(`station-widget[station-id="${ stationId }"]`);
 
     if (stationEl) {
         favoriteLocationEl.removeChild(stationEl);
