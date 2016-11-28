@@ -14,3 +14,5 @@ The app uses several web standards and HTML5 features:
 - geolocation
 - localStorage
 - serviceWorker
+
+A version still under development is available at https://beta.sabadelli.it/meteo.fvg.
