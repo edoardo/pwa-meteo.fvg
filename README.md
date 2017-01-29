@@ -15,4 +15,6 @@ The app uses several web standards and HTML5 features:
 - localStorage
 - serviceWorker
 
-A version still under development is available at https://beta.sabadelli.it/meteo.fvg.
+The app can be installed from https://apps.sabadelli.it/meteo.fvg/, I've tested it in Chrome and Opera, both browsers
+allow for the installation of the app in the home screen of your Android phone.
+The version under development is available at https://beta.sabadelli.it/meteo.fvg.
