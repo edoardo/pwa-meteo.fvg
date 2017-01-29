@@ -42,9 +42,9 @@ self.addEventListener('fetch', event => {
                 // which most likely happens due to the server being unreachable.
                 console.error( 'Fetch failed; returning offline page instead.', exception);
 
-                return caches.open(OFFLINE_CACHE).then(cache => {
-                    return cache.match(OFFLINE_URL);
-                });
+//                return caches.open(OFFLINE_CACHE).then(cache => {
+//                    return cache.match(OFFLINE_URL);
+//                });
             })
         );
     } else {
